@@ -118,18 +118,23 @@ During training, you'll see detailed metrics for each step:
 
 ```
 ================================================================================
-Step 1 Metrics (GPU: AMD Instinct MI300X):
+Step 1 Metrics (GPU: AMD Instinct MI300X VF):
 ================================================================================
-  Loss:           2.1234
-  Tokens/sec:     1234.56
-  Step time:      26.543s
+  Loss:           11.9986
+  Tokens/sec:     3883.50
+  Step time:      8.438s
   GPU Util:       N/A
-  GPU Mem:        45.23GB / 192.00GB (23.6%)
-  CPU Util:       85.3%
-  Process Mem:    12.45GB
-  System Mem:     42.1%
+  GPU Mem:        45.02GB / 191.69GB (23.5%)
+  CPU Util:       0.0%
+  Process Mem:    6.05GB
+  System Mem:     6.7%
 ================================================================================
 ```
+
+**Performance on AMD MI300X:**
+- **~3,880 tokens/sec** with batch size 4, sequence length 8192
+- **45GB GPU memory** usage for 8B model
+- **8.4s per training step** (32,768 tokens per step)
 
 ## Architecture
 
