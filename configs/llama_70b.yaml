@@ -1,0 +1,121 @@
+# Configuration for Llama 3.1 70B training from scratch with FSDP
+# Based on Megatron framework configuration
+
+# Experiment metadata
+work_group: "amd"
+user_name: "root"
+exp_name: "llama3.1_70B-pretrain"
+workspace: "./output"
+
+model:
+  name: "meta-llama/Meta-Llama-3.1-70B"
+  sequence_length: 8192
+  max_position_embeddings: 8192
+  use_cache: false
+
+training:
+  # Output and logging
+  output_dir: "./output/llama_70b"
+  logging_dir: "./output/llama_70b/logs"
+  wandb_project: "Primus_Llama_Pretrain"
+  disable_wandb: true
+  stderr_sink_level: "DEBUG"
+  
+  # Training iterations
+  train_iters: 50
+  num_train_epochs: 3
+  
+  # Batch configuration (adjusted for 70B model)
+  micro_batch_size: 1  # Smaller for 70B
+  global_batch_size: 128
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 16  # Assuming 8 GPUs: 128 / (1 * 8) = 16
+  
+  # Sequence configuration
+  seq_length: 8192
+  
+  # Learning rate schedule (slightly lower for larger model)
+  learning_rate: 3.0e-6
+  min_lr: 0.0
+  lr_warmup_iters: 2
+  warmup_steps: 2
+  lr_decay_iters: null
+  lr_decay_style: "cosine"
+  
+  # Optimizer configuration
+  weight_decay: 0.1
+  adam_beta1: 0.9
+  adam_beta2: 0.95
+  max_grad_norm: 1.0
+  
+  # Model initialization
+  init_method_std: 0.008
+  norm_epsilon: 1.0e-6
+  eod_mask_loss: true
+  
+  # Logging configuration
+  log_avg_skip_iterations: 2
+  log_avg_reset_interval: 50
+  logging_steps: 1
+  
+  # Checkpointing
+  save_interval: 20000
+  save_steps: 20000
+  save_total_limit: 2
+  finetune: false
+  auto_continue_train: false
+  load: null
+  no_load_optim: null
+  no_load_rng: null
+  no_save_optim: null
+  no_save_rng: null
+  disable_last_saving: true
+  ckpt_format: "torch"
+  
+  # Evaluation
+  evaluation_strategy: "steps"
+  eval_steps: 250
+  
+  # Optimization flags
+  fp16: false
+  bf16: true  # Required for stability on large models
+  gradient_checkpointing: true  # Essential for 70B
+  
+  # Reporting
+  report_to: "none"
+
+# Parallel training configuration
+parallel:
+  tensor_model_parallel_size: 1
+  pipeline_model_parallel_size: 1
+  expert_model_parallel_size: 1
+  overlap_grad_reduce: true
+  overlap_param_gather: true
+  gradient_accumulation_fusion: false
+
+# Dataset configuration
+dataset:
+  name: "wikitext"
+  config: "wikitext-2-raw-v1"
+  mock_data: true
+  train_data_path: null
+  valid_data_path: null
+  test_data_path: null
+
+# FSDP configuration (enabled for multi-GPU 70B)
+fsdp:
+  enabled: true
+  fsdp_strategy: "full_shard"  # FSDP with full sharding for memory efficiency
+  fsdp_transformer_layer_cls_to_wrap: ["LlamaDecoderLayer"]
+  fsdp_backward_prefetch: "backward_pre"
+  fsdp_auto_wrap_policy: "transformer_based_wrap"
+  fsdp_cpu_offload: false  # Set to true if running out of GPU memory
+  fsdp_sync_module_states: true
+  fsdp_use_orig_params: false
+
+# Advanced features
+turbo:
+  enable_primus_turbo: true
+  use_turbo_attention: false
+  use_turbo_grouped_mlp: false

@@ -1,0 +1,33 @@
+[project]
+name = "llama3-1-benchmark"
+version = "0.1.0"
+description = "PyTorch-based script for training Llama 3.1 8B from scratch with detailed metrics"
+readme = "README.md"
+requires-python = ">=3.8.1"
+dependencies = [
+    "torch>=2.0.0",
+    "transformers>=4.40.0",
+    "datasets>=2.14.0",
+    "accelerate>=0.20.0",
+    "psutil>=5.9.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311']
+
+[tool.isort]
+profile = "black"
+line_length = 100

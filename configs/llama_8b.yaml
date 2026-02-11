@@ -1,0 +1,114 @@
+# Configuration for Llama 3.1 8B training from scratch
+# Based on Megatron framework configuration
+
+# Experiment metadata
+work_group: "amd"
+user_name: "root"
+exp_name: "llama3.1_8B-pretrain"
+workspace: "./output"
+
+model:
+  name: "meta-llama/Meta-Llama-3.1-8B"
+  sequence_length: 8192
+  max_position_embeddings: 8192
+  use_cache: false
+
+training:
+  # Output and logging
+  output_dir: "./output/llama_8b"
+  logging_dir: "./output/llama_8b/logs"
+  wandb_project: "Primus_Llama_Pretrain"
+  disable_wandb: true
+  stderr_sink_level: "DEBUG"
+  
+  # Training iterations
+  train_iters: 50
+  num_train_epochs: 3
+  
+  # Batch configuration
+  micro_batch_size: 4
+  global_batch_size: 128
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 1  # No gradient accumulation
+  
+  # Sequence configuration
+  seq_length: 8192
+  
+  # Learning rate schedule
+  learning_rate: 1.0e-5
+  min_lr: 0.0
+  lr_warmup_iters: 2
+  warmup_steps: 2
+  lr_decay_iters: null
+  lr_decay_style: "cosine"
+  
+  # Optimizer configuration
+  weight_decay: 0.1
+  adam_beta1: 0.9
+  adam_beta2: 0.95
+  max_grad_norm: 1.0
+  
+  # Model initialization
+  init_method_std: 0.008
+  norm_epsilon: 1.0e-6
+  eod_mask_loss: true
+  
+  # Logging configuration
+  log_avg_skip_iterations: 2
+  log_avg_reset_interval: 50
+  logging_steps: 1
+  
+  # Checkpointing
+  save_interval: 20000
+  save_steps: 20000
+  save_total_limit: 2
+  finetune: false
+  auto_continue_train: false
+  load: null
+  no_load_optim: null
+  no_load_rng: null
+  no_save_optim: null
+  no_save_rng: null
+  disable_last_saving: true
+  ckpt_format: "torch"
+  
+  # Evaluation
+  evaluation_strategy: "steps"
+  eval_steps: 500
+  
+  # Optimization flags
+  fp16: false
+  bf16: true  # Better for MI300X
+  gradient_checkpointing: true
+  
+  # Reporting
+  report_to: "none"
+
+# Parallel training configuration
+parallel:
+  tensor_model_parallel_size: 1
+  pipeline_model_parallel_size: 1
+  expert_model_parallel_size: 1
+  overlap_grad_reduce: true
+  overlap_param_gather: true
+  gradient_accumulation_fusion: false
+
+# Dataset configuration
+dataset:
+  name: "wikitext"
+  config: "wikitext-2-raw-v1"
+  mock_data: true
+  train_data_path: null
+  valid_data_path: null
+  test_data_path: null
+
+# FSDP configuration (disabled for single GPU 8B)
+fsdp:
+  enabled: false
+
+# Advanced features
+turbo:
+  enable_primus_turbo: true
+  use_turbo_attention: false
+  use_turbo_grouped_mlp: false
